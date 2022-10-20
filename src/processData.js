@@ -1,51 +1,60 @@
+/**
+ * Function that extracts relevant data in preperation for writing and checks for valididty
+ *
+ * @param {String} data Raw .xml file data
+ * @return {Array} [dataBlockArr, CSVFileNames, CSVFileHeader, CSVFileTrailer, dataBlocksValid] Data to write to .csv files.
+ */
+
 const xml2json = require('xml2json');
 
 const processData = (data) => {
-  let jsonObj = xmlToJson(data);
+  // Convert XML string to JSON object for easier processing
+  // Extract CSVIntervalData element and parse data points into an array, again for processing convenience
+  const jsonObj = xmlToJson(data);
   const CSVIntervalData = extractInternalCSV(jsonObj);
-  let csvArr = jsonCSVObjToArr(CSVIntervalData);
+  const CSVArr = jsonCSVObjToArr(CSVIntervalData);
 
-  const dataValid = checkDataValidity(csvArr);
+  const dataValid = checkDataValidity(CSVArr);
   if (dataValid) {
-    // Extract the file header and trailer
-    const [CSVFileHeader, CSVFileTrailer] = getHeaderAndTrailer(csvArr);
-    // Extract the files names of each data block
-    const CSVFileNames = getCSVFileNames(csvArr);
-    //change this from chunks to blocks
-    dataChunks = getSeperateDataBlocks(csvArr);
-    const dataBlocksValid = checkChunkValidity(dataChunks);
+    const [CSVFileHeader, CSVFileTrailer] = getHeaderAndTrailer(CSVArr);
+    const CSVFileNames = getCSVFileNames(CSVArr);
+    const dataBlockArr = getSeperateDataBlocks(CSVArr);
+    const dataBlocksValid = checkBlocksValidity(dataBlockArr);
 
     return [
-      dataChunks,
+      dataBlockArr,
       CSVFileNames,
       CSVFileHeader,
       CSVFileTrailer,
       dataBlocksValid,
     ];
   } else {
-    console.log('data not valid');
-    //  throw console.error('Data not valid');
+    console.log('Data not valid');
   }
 };
 
 module.exports = processData;
 
+// Converts XML string to JSON object and returns
 function xmlToJson(data) {
   return xml2json.toJson(data, {
     object: true,
   });
 }
 
+// Extracts and returns the entire CSVInternalData object
 function extractInternalCSV(jsonObj) {
   let key = Object.keys(jsonObj);
   return jsonObj[key].Transactions.Transaction.MeterDataNotification
     .CSVIntervalData;
 }
 
+// Converts CSVIntervalData object to an array and returns
 function jsonCSVObjToArr(CSVObj) {
+  // Splits the data into rows
   const csvArrRows = CSVObj.split(/\r?\n/);
 
-  // Split each row at each comma
+  // Create an array by spliting each row at each comma
   let csvArrRowsCols = csvArrRows.map((element) => {
     const split = element.split(',');
     // Remove trailing empty element that is created by the trailing commas
@@ -58,6 +67,8 @@ function jsonCSVObjToArr(CSVObj) {
   return csvArrRowsCols;
 }
 
+// Extract the 100 and 900 row of data
+// Return header and trailer for files
 function getHeaderAndTrailer(CSVArr) {
   let CSVFileHeaderAndTRailer = [];
   for (const element of CSVArr) {
@@ -72,6 +83,8 @@ function getHeaderAndTrailer(CSVArr) {
   return CSVFileHeaderAndTRailer;
 }
 
+// Checks data contains the correct row start elements
+// Returns bool
 function checkDataValidity(CSVArr) {
   let dataTag100 = 0;
   let dataTag900 = 0;
@@ -80,6 +93,7 @@ function checkDataValidity(CSVArr) {
 
   let dataValid = true;
 
+  // Check each data row at element 0 and tally
   for (const element of CSVArr) {
     if (element[0] === '100') {
       dataTag100++;
@@ -94,6 +108,7 @@ function checkDataValidity(CSVArr) {
     }
   }
 
+  // Check for valid occurances of each data start element
   if (
     dataTag100 !== 1 ||
     dataTag900 !== 1 ||
@@ -106,25 +121,26 @@ function checkDataValidity(CSVArr) {
   return dataValid;
 }
 
-// Check that all data blocks contain at least 1 300 row
-function checkChunkValidity(dataBlock) {
+// Check that all data blocks contain at least 1 300 row (i.e. are populated)
+// Returns bool
+function checkBlocksValidity(dataBlockArr) {
   let dataBlockArrValid = true;
 
-  for (let i = 0; i < dataChunks.length; i++) {
+  for (let i = 0; i < dataBlockArr.length; i++) {
     if (
-      typeof dataChunks[i][1] === 'undefined' ||
-      dataChunks[i][1][0] !== '300'
+      typeof dataBlockArr[i][1] === 'undefined' ||
+      dataBlockArr[i][1][0] !== '300'
     ) {
-      console.log('its');
       dataBlockArrValid = false;
     }
   }
   return dataBlockArrValid;
 }
 
-function getCSVFileNames(csvArr) {
+// Extracts files names from second field in the "200" row
+function getCSVFileNames(CSVArr) {
   let CSVFileNames = [];
-  for (const element of csvArr) {
+  for (const element of CSVArr) {
     if (element[0] === '200') {
       CSVFileNames.push(element[1]);
     }
@@ -132,21 +148,23 @@ function getCSVFileNames(csvArr) {
   return CSVFileNames;
 }
 
-function getSeperateDataBlocks(csvArr) {
+// Breaks data into seperate blocks
+// A single block of data is the "200" row of data, followed by the repeating rows after, until the next "200", or the "900" trailing line
+// Returns an array containing the seperate blocks of data
+function getSeperateDataBlocks(CSVArr) {
+  // Get indexes where the data should be split
   let dataBreaks = [];
-  for (let i = 0; i < csvArr.length; i++) {
-    if (csvArr[i][0] === '200' || csvArr[i][0] === '900') {
+  for (let i = 0; i < CSVArr.length; i++) {
+    if (CSVArr[i][0] === '200' || CSVArr[i][0] === '900') {
       dataBreaks.push(i);
     }
   }
 
-  let dataChunks = [];
-
-  // dataBreaks 1, 8, 15
-  // Create an array containing seperate data chunks
+  // Split CSVArr at the data break indexes and push into new array
+  let dataBlockArr = [];
   for (let i = 0; i < dataBreaks.length - 1; i++) {
-    dataChunks.push(csvArr.slice(dataBreaks[i], dataBreaks[i + 1]));
+    dataBlockArr.push(CSVArr.slice(dataBreaks[i], dataBreaks[i + 1]));
   }
 
-  return dataChunks;
+  return dataBlockArr;
 }
