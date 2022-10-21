@@ -7,25 +7,37 @@
 
 const fileReader = require('./fileReader');
 const fileWriter = require('./fileWriter');
-const processData = require('./processData');
+
+// Name these better
+const DataProcessor = require('./DataProcessor');
+const dataProcessor = new DataProcessor();
+const xml2json = require('xml2json');
 
 const main = async () => {
   const data = await fileReader('./inputFiles/testfile.xml');
 
-  [
-    dataBlocksArr,
-    CSVFileNames,
-    CSVFileHeader,
-    CSVFileTrailer,
-    dataBlocksValid,
-  ] = processData(data);
+  // Converts XML string to JSON object and returns
+  const JSONObj = xml2json.toJson(data, {
+    object: true,
+  });
 
-  // Write to file only if all blocks of data contain at least one 300 line
-  if (dataBlocksValid) {
-    fileWriter(dataBlocksArr, CSVFileNames, CSVFileHeader, CSVFileTrailer);
-    console.log('File write complete');
-  } else {
-    console.log('At least one data block is invalid');
+  const CSVIntervalData = dataProcessor.extractInternalCSV(JSONObj);
+  const CSVArr = dataProcessor.jsonCSVObjToArr(CSVIntervalData);
+
+  const dataValid = dataProcessor.checkDataValidity(CSVArr);
+  if (dataValid) {
+    const [CSVFileHeader, CSVFileTrailer] =
+      dataProcessor.getHeaderAndTrailer(CSVArr);
+    const CSVFileNames = dataProcessor.getCSVFileNames(CSVArr);
+    const dataBlockArr = dataProcessor.getSeperateDataBlocks(CSVArr);
+    const dataBlocksValid = dataProcessor.checkBlocksValidity(dataBlockArr);
+
+    if (dataBlocksValid) {
+      fileWriter(dataBlockArr, CSVFileNames, CSVFileHeader, CSVFileTrailer);
+      console.log('File write complete');
+    } else {
+      console.log('At least one data block is invalid');
+    }
   }
 };
 
