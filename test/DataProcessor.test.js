@@ -7,6 +7,13 @@ const {
   mockDataBlock1,
   mockDataBlockArr,
   mockJSONDataObj,
+  mockDataBlockArrEmpty,
+  mockDataBlockArrInvalidRowStart,
+  mockCSVInternalDataArrNo100,
+  mockCSVInternalDataArrNo200,
+  mockCSVInternalDataArrNo300,
+  mockCSVInternalDataArrNo900,
+  mockCSVInternalDataArrMulti100Rows,
 } = require('./mockData');
 
 const DataProcessor = require('../src/DataProcessor');
@@ -54,6 +61,48 @@ it('Checks data for correct occurance of 100, 900, 200 and 300 rows', () => {
   assert.ok(dataValid);
 });
 
+it('Rejects data with multiple 100 rows', () => {
+  const dataValid = dataProcessor.checkDataValidity(
+    mockCSVInternalDataArrMulti100Rows
+  );
+  assert.ok(!dataValid);
+});
+
+it('Rejects data with multiple 900 rows', () => {
+  const dataValid = dataProcessor.checkDataValidity(
+    mockCSVInternalDataArrMulti900Rows
+  );
+  assert.ok(!dataValid);
+});
+
+it('Rejects data with no 100 row', () => {
+  const dataValid = dataProcessor.checkDataValidity(
+    mockCSVInternalDataArrNo100
+  );
+  assert.ok(!dataValid);
+});
+
+it('Rejects data with no 200 row', () => {
+  const dataValid = dataProcessor.checkDataValidity(
+    mockCSVInternalDataArrNo200
+  );
+  assert.ok(!dataValid);
+});
+
+it('Rejects data with no 300 row', () => {
+  const dataValid = dataProcessor.checkDataValidity(
+    mockCSVInternalDataArrNo300
+  );
+  assert.ok(!dataValid);
+});
+
+it('Rejects data with no 900 row', () => {
+  const dataValid = dataProcessor.checkDataValidity(
+    mockCSVInternalDataArrNo900
+  );
+  assert.ok(!dataValid);
+});
+
 it('Extracts file names', () => {
   const CSVFileNames = dataProcessor.getCSVFileNames(mockCSVInternalDataArr);
   assert.strictEqual(CSVFileNames[0], '12345678901');
@@ -74,7 +123,21 @@ it('Extracts the seperate data blocks from the CSVArr', () => {
   );
 });
 
-it('Checks all data blocks contain at least one 300 row', () => {
+it('Accepts valid data blocks', () => {
   const dataBlocksValid = dataProcessor.checkBlocksValidity(mockDataBlockArr);
-  assert.ok(dataBlocksValid);
+  assert(dataBlocksValid);
+});
+
+it('Rejects data blocks with invalid row start', () => {
+  const dataBlocksValid = dataProcessor.checkBlocksValidity(
+    mockDataBlockArrEmpty
+  );
+  assert(!dataBlocksValid);
+});
+
+it('Rejects empty data blocks', () => {
+  const dataBlocksValid = dataProcessor.checkBlocksValidity(
+    mockDataBlockArrInvalidRowStart
+  );
+  assert(!dataBlocksValid);
 });
