@@ -14,33 +14,40 @@ const dataProcessor = new DataProcessor();
 const xml2json = require('xml2json');
 
 const main = async () => {
-  const data = await fileReader('./inputFiles/testfile.xml');
+  let data;
+  data = await fileReader('./inputFiles/testfile.xml');
 
-  // Converts XML string to JSON object and returns
-  // WRPA IN TRY CATCH
-  const JSONObj = xml2json.toJson(data, {
-    object: true,
-  });
-
-  const CSVIntervalData = dataProcessor.extractInternalCSVString(JSONObj);
-  const CSVArr = dataProcessor.jsonCSVStrToArr(CSVIntervalData);
-
-  const dataValid = dataProcessor.checkDataValidity(CSVArr);
-  if (dataValid) {
-    const [CSVFileHeader, CSVFileTrailer] =
-      dataProcessor.getHeaderAndTrailer(CSVArr);
-    const CSVFileNames = dataProcessor.getCSVFileNames(CSVArr);
-    const dataBlockArr = dataProcessor.getSeperateDataBlocks(CSVArr);
-    const dataBlocksValid = dataProcessor.checkBlocksValidity(dataBlockArr);
-
-    if (dataBlocksValid) {
-      fileWriter(dataBlockArr, CSVFileNames, CSVFileHeader, CSVFileTrailer);
-      console.log('File write complete');
-    } else {
-      console.log('At least one data block is invalid');
+  let JSONObj;
+  if (data) {
+    try {
+      JSONObj = xml2json.toJson(data, {
+        object: true,
+      });
+    } catch (err) {
+      console.log('XML to JSON parse failed:', err.message);
     }
   }
-  //add a console log error here
+
+  if (JSONObj) {
+    const CSVIntervalData = dataProcessor.extractInternalCSVString(JSONObj);
+    const CSVArr = dataProcessor.jsonCSVStrToArr(CSVIntervalData);
+
+    const dataValid = dataProcessor.checkDataValidity(CSVArr);
+    if (dataValid) {
+      const [CSVFileHeader, CSVFileTrailer] =
+        dataProcessor.getHeaderAndTrailer(CSVArr);
+      const CSVFileNames = dataProcessor.getCSVFileNames(CSVArr);
+      const dataBlockArr = dataProcessor.getSeperateDataBlocks(CSVArr);
+      const dataBlocksValid = dataProcessor.checkBlocksValidity(dataBlockArr);
+
+      if (dataBlocksValid) {
+        fileWriter(dataBlockArr, CSVFileNames, CSVFileHeader, CSVFileTrailer);
+        console.log('File write complete');
+      } else {
+        console.log('At least one data block is invalid');
+      }
+    }
+  }
 };
 
 main();

@@ -39,7 +39,7 @@ const fileWriter = (
       message.close();
     }
   } catch (err) {
-    console.log(err);
+    console.log('File write failed:', err.message);
   }
 };
 
