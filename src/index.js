@@ -17,12 +17,13 @@ const main = async () => {
   const data = await fileReader('./inputFiles/testfile.xml');
 
   // Converts XML string to JSON object and returns
+  // WRPA IN TRY CATCH
   const JSONObj = xml2json.toJson(data, {
     object: true,
   });
 
-  const CSVIntervalData = dataProcessor.extractInternalCSV(JSONObj);
-  const CSVArr = dataProcessor.jsonCSVObjToArr(CSVIntervalData);
+  const CSVIntervalData = dataProcessor.extractInternalCSVString(JSONObj);
+  const CSVArr = dataProcessor.jsonCSVStrToArr(CSVIntervalData);
 
   const dataValid = dataProcessor.checkDataValidity(CSVArr);
   if (dataValid) {
@@ -39,6 +40,7 @@ const main = async () => {
       console.log('At least one data block is invalid');
     }
   }
+  //add a console log error here
 };
 
 main();

@@ -8,17 +8,14 @@
 // USE LET AND CONST PROPERLY
 
 class DataProcessor {
-  //Do I need this?
-  constructor() {}
-
-  extractInternalCSV(jsonObj) {
+  extractInternalCSVString(jsonObj) {
     let key = Object.keys(jsonObj);
     return jsonObj[key].Transactions.Transaction.MeterDataNotification
       .CSVIntervalData;
   }
 
   // Converts CSVIntervalData object to an array and returns
-  jsonCSVObjToArr(CSVObj) {
+  jsonCSVStrToArr(CSVObj) {
     // Splits the data into rows
     const csvArrRows = CSVObj.split(/\r?\n/);
 
@@ -94,6 +91,7 @@ class DataProcessor {
   checkBlocksValidity(dataBlockArr) {
     let dataBlockArrValid = true;
 
+    //REVIEW THIS
     for (let i = 0; i < dataBlockArr.length; i++) {
       if (
         typeof dataBlockArr[i][1] === 'undefined' ||
