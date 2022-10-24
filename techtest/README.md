@@ -13,9 +13,9 @@
 
 ## What would be done with more time
 
-- Improve error handling and reporting to be more granlar i.e. reports specific issue with respect to data.
+- Improve error handling and reporting to be more granular i.e. report specific issues with respect to data.
 - Program currently fails if even just one data block is invalid. Depending on business requirements, this could be changed to simply discard/report the invalid block and continue writing valid blocks
-- Currently iterating over data numerous times througout program. This could be made more efficient, although maybe at the cost of code readability and modularity.
+- Currently iterating over data numerous times throughout program. This could be made more efficient, although maybe at the cost of code readability and modularity.
 - Data currently checked right before file write. Ideally the program would catch invalid data before getting this far.
 - Investigate a more direct way of reading and processing XML that does not require conversion to JSON and/or array
 - Investigate other testing suites
