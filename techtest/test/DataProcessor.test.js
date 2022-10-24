@@ -1,5 +1,9 @@
 const assert = require('assert');
 
+const DataProcessor = require('../src/DataProcessor');
+const dataProcessor = new DataProcessor();
+
+// Mock data
 const {
   mockCSVInternalDataArr,
   mockCSVInternalDataString,
@@ -14,10 +18,8 @@ const {
   mockCSVInternalDataArrNo300,
   mockCSVInternalDataArrNo900,
   mockCSVInternalDataArrMulti100Rows,
+  mockCSVInternalDataArrMulti900Rows,
 } = require('./mockData');
-
-const DataProcessor = require('../src/DataProcessor');
-const dataProcessor = new DataProcessor();
 
 it('Extracts a string containing only the contents of CSVInternalData', async () => {
   const CSVIntervalData =
@@ -61,46 +63,40 @@ it('Checks data for correct occurance of 100, 900, 200 and 300 rows', () => {
   assert.ok(dataValid);
 });
 
-it('Rejects data with multiple 100 rows', () => {
-  const dataValid = dataProcessor.checkDataValidity(
-    mockCSVInternalDataArrMulti100Rows
-  );
-  assert.ok(!dataValid);
+it('Throws error if data contains multiple 100 rows', () => {
+  assert.throws(() => {
+    dataProcessor.checkDataValidity(mockCSVInternalDataArrMulti100Rows);
+  });
 });
 
-it('Rejects data with multiple 900 rows', () => {
-  const dataValid = dataProcessor.checkDataValidity(
-    mockCSVInternalDataArrMulti900Rows
-  );
-  assert.ok(!dataValid);
+it('Throws error if data contains multiple 900 rows', () => {
+  assert.throws(() => {
+    dataProcessor.checkDataValidity(mockCSVInternalDataArrMulti900Rows);
+  });
 });
 
-it('Rejects data with no 100 row', () => {
-  const dataValid = dataProcessor.checkDataValidity(
-    mockCSVInternalDataArrNo100
-  );
-  assert.ok(!dataValid);
+it('Throws error if data has no 100 row', () => {
+  assert.throws(() => {
+    dataProcessor.checkDataValidity(mockCSVInternalDataArrNo100);
+  });
 });
 
-it('Rejects data with no 200 row', () => {
-  const dataValid = dataProcessor.checkDataValidity(
-    mockCSVInternalDataArrNo200
-  );
-  assert.ok(!dataValid);
+it('Throws error if data has no 200 row', () => {
+  assert.throws(() => {
+    dataProcessor.checkDataValidity(mockCSVInternalDataArrNo200);
+  });
 });
 
-it('Rejects data with no 300 row', () => {
-  const dataValid = dataProcessor.checkDataValidity(
-    mockCSVInternalDataArrNo300
-  );
-  assert.ok(!dataValid);
+it('Throws error if data has no 300 row', () => {
+  assert.throws(() => {
+    dataProcessor.checkDataValidity(mockCSVInternalDataArrNo300);
+  });
 });
 
-it('Rejects data with no 900 row', () => {
-  const dataValid = dataProcessor.checkDataValidity(
-    mockCSVInternalDataArrNo900
-  );
-  assert.ok(!dataValid);
+it('Throws error if data has no 900 row', () => {
+  assert.throws(() => {
+    dataProcessor.checkDataValidity(mockCSVInternalDataArrNo900);
+  });
 });
 
 it('Extracts file names', () => {
@@ -128,16 +124,14 @@ it('Accepts valid data blocks', () => {
   assert(dataBlocksValid);
 });
 
-it('Rejects data blocks with invalid row start', () => {
-  const dataBlocksValid = dataProcessor.checkBlocksValidity(
-    mockDataBlockArrEmpty
-  );
-  assert(!dataBlocksValid);
+it('Throws error if data block(s) have invalid row start', () => {
+  assert.throws(() => {
+    dataProcessor.checkBlocksValidity(mockDataBlockArrInvalidRowStart);
+  });
 });
 
-it('Rejects empty data blocks', () => {
-  const dataBlocksValid = dataProcessor.checkBlocksValidity(
-    mockDataBlockArrInvalidRowStart
-  );
-  assert(!dataBlocksValid);
+it('Throws error if data block(s) are empty', () => {
+  assert.throws(() => {
+    dataProcessor.checkBlocksValidity(mockDataBlockArrEmpty);
+  });
 });

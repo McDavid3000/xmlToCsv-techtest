@@ -6,18 +6,17 @@
 - XML file read in
 - Data processed and checked according to specifications
 - CSV file written and named accordingly, with header and trailer
+- Automated tests written for ProcessData class
 - Tested manually
 
 ## What wasn't done
 
-- Automated tests
-
 ## What would be done with more time
 
-- Automated testing of processData.js especially
-- Refactor processData.js into a class
-- Improve error handling and reporting. Currently just using console logs.
+- Improve error handling and reporting to be more granlar i.e. reports specific issue with respect to data.
 - Program currently fails if even just one data block is invalid. Depending on business requirements, this could be changed to simply discard/report the invalid block and continue writing valid blocks
-- Currently iterating over data numerous times througout program. This could be made more efficient.
+- Currently iterating over data numerous times througout program. This could be made more efficient, although maybe at the cost of code readability and modularity.
 - Data currently checked right before file write. Ideally the program would catch invalid data before getting this far.
-- CSV file may not be entirely as per technical specifications. Would check this.
+- Investigate a more direct way of reading and processing XML that does not require conversion to JSON and/or array
+- Investigate other testing suites
+- Review variable names to ensure consistent conventions

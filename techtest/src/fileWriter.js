@@ -1,5 +1,5 @@
 /**
- * Writes .csv files according to number of data blocks provided
+ * Writes .csv files for each data block provided
  *
  * @param {Array} dataBlocksArr The data to be written to file(s)
  * @param {number} CSVFileNames The names extracted for the file(s)
@@ -38,6 +38,7 @@ const fileWriter = (
 
       message.close();
     }
+    console.log('File write complete');
   } catch (err) {
     console.log('File write failed:', err.message);
   }

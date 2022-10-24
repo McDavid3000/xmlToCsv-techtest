@@ -1,15 +1,13 @@
 /**
- * Function that extracts relevant data in preperation for writing and checks for valididty
- *
- * @param {String} data Raw .xml file data
- * @return {Array} [dataBlockArr, CSVFileNames, CSVFileHeader, CSVFileTrailer, dataBlocksValid] Data to write to .csv files.
+ * DataProcessor is a class containing various functions for
+ * extracting, transforming and checking data to be written to file
+ * as .csv file(s)
  */
 
-// USE LET AND CONST PROPERLY
-
 class DataProcessor {
+  // Returns the CSVIntervalData value stored in jsonObj
   extractInternalCSVString(jsonObj) {
-    let key = Object.keys(jsonObj);
+    const key = Object.keys(jsonObj);
     return jsonObj[key].Transactions.Transaction.MeterDataNotification
       .CSVIntervalData;
   }
@@ -20,7 +18,7 @@ class DataProcessor {
     const csvArrRows = CSVObj.split(/\r?\n/);
 
     // Create an array by spliting each row at each comma
-    let csvArrRowsCols = csvArrRows.map((element) => {
+    const csvArrRowsCols = csvArrRows.map((element) => {
       const split = element.split(',');
       // Remove trailing empty element that is created by the trailing commas
       if (split[split.length - 1] === '') {
@@ -48,7 +46,7 @@ class DataProcessor {
     return CSVFileHeaderAndTRailer;
   }
 
-  // Checks data contains the correct row start elements
+  // Checks CSVArr contains the correct quantity of row start elements
   // Returns bool
   checkDataValidity(CSVArr) {
     let dataTag100 = 0;
@@ -70,6 +68,7 @@ class DataProcessor {
         dataTag300++;
       } else {
         dataValid = false;
+        throw new Error('Data contains invalid row(s)');
       }
     }
 
@@ -81,29 +80,14 @@ class DataProcessor {
       dataTag300 < 1
     ) {
       dataValid = false;
+      throw new Error('Data contains invalid row occurances');
     }
 
     return dataValid;
   }
 
-  // Check that all data blocks contain at least 1 300 row (i.e. are populated)
-  // Returns bool
-  checkBlocksValidity(dataBlockArr) {
-    let dataBlockArrValid = true;
-
-    //REVIEW THIS
-    for (let i = 0; i < dataBlockArr.length; i++) {
-      if (
-        typeof dataBlockArr[i][1] === 'undefined' ||
-        dataBlockArr[i][1][0] !== '300'
-      ) {
-        dataBlockArrValid = false;
-      }
-    }
-    return dataBlockArrValid;
-  }
-
   // Extracts files names from second field in the "200" row
+  // Returns an array containing the file names
   getCSVFileNames(CSVArr) {
     let CSVFileNames = [];
     for (const element of CSVArr) {
@@ -134,8 +118,26 @@ class DataProcessor {
 
     return dataBlockArr;
   }
+
+  // Check that all data blocks contain at least 1 300 row (i.e. are populated)
+  // Returns bool
+  checkBlocksValidity(dataBlockArr) {
+    let dataBlockArrValid = true;
+
+    // Check that 300 row is defined and present
+    for (let i = 0; i < dataBlockArr.length; i++) {
+      if (
+        typeof dataBlockArr[i][1] === 'undefined' ||
+        dataBlockArr[i][1][0] !== '300'
+      ) {
+        dataBlockArrValid = false;
+        throw new Error(
+          'One or more of the data blocks does not contain a 300 row (unpopulated)'
+        );
+      }
+    }
+    return dataBlockArrValid;
+  }
 }
 
 module.exports = DataProcessor;
-
-// Extracts and returns the entire CSVInternalData object

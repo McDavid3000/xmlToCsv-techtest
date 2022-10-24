@@ -1,5 +1,5 @@
 /**
- * Reads .xml files
+ * Reads files
  *
  * @param {String} filePath The file path to be read from
  * @return {String} data read from file

@@ -766,7 +766,7 @@ const mockCSVInternalDataArrMulti100Rows = [
   ['300', '12345678901', 'E1', 'E1', 'E1', 'N1', 'HGLMET501', 'KWH', '30'],
   ['100', 'NEM12', '201801211010', 'MYENRGY', 'URENRGY'],
 ];
-const mockCSVInternalDataArrNo100Multi900Rows = [
+const mockCSVInternalDataArrMulti900Rows = [
   ['200', 'NEM12', '201801211010', 'MYENRGY', 'URENRGY'],
   ['900'],
   ['300', '12345678901', 'E1', 'E1', 'E1', 'N1', 'HGLMET501', 'KWH', '30'],
@@ -2235,5 +2235,5 @@ module.exports = {
   mockCSVInternalDataArrNo300,
   mockCSVInternalDataArrNo900,
   mockCSVInternalDataArrMulti100Rows,
-  mockCSVInternalDataArrNo100Multi900Rows,
+  mockCSVInternalDataArrMulti900Rows,
 };
